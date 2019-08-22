@@ -36,7 +36,7 @@ while ! docker-compose exec mysql mysqladmin --user=root --password=root --host 
     echo "Waiting for database connection..."
     sleep 2
 done
-echo -e "\033[1;92m Acesso Site: hhttp://localhost\033[m"
+echo -e "\033[1;92m Acesso Site: http://localhost\033[m"
 python -m webbrowser "http://localhost" > /dev/null 2>&1
 ```
 
@@ -52,3 +52,33 @@ python -m webbrowser "http://localhost" > /dev/null 2>&1
 - Atualizar a documentação do Postman
 - Enviar por e-mail o link de seu fork (não precisa criar PR) junto com o link de sua documentação do Postman
 - Obrigado e boa sorte =)
+
+## Para iniciar os testes ##
+```shell
+$ php artisan migrate
+$ composer dump-autoload
+$ php artisan jwt:secret
+$ php artisan db:seed
+```
+
+Credenciais:
+- User: suporte@dindigital.com
+- Pass: secret
+
+Lista de rotas
+
+| Method | URI              | Name     | Action                                             | Middleware   |
+|--------|------------------|----------|----------------------------------------------------|--------------|
+| POST   | api/auth/login   | Login    | App\Http\Controllers\Api\AuthController@login      | api          |
+| GET    | api/auth/logout  | Logout   | App\Http\Controllers\Api\AuthController@logout     | api,jwt.auth |
+| GET    | api/auth/me      | Me       | App\Http\Controllers\Api\AuthController@me         | api,jwt.auth |
+| GET    | api/auth/refresh | Refresh  | App\Http\Controllers\Api\AuthController@refresh    | api,jwt.auth |
+| GET    | api/product      | Read_All | App\Http\Controllers\Api\ProductController@index   | api,jwt.auth |
+| POST   | api/product      | Create   | App\Http\Controllers\Api\ProductController@store   | api,jwt.auth |
+| GET    | api/product/{id} | Read     | App\Http\Controllers\Api\ProductController@show    | api,jwt.auth |
+| PUT    | api/product/{id} | Update   | App\Http\Controllers\Api\ProductController@update  | api,jwt.auth |
+| DELETE | api/product/{id} | Delete   | App\Http\Controllers\Api\ProductController@destroy | api,jwt.auth |
+
+Link para documentação da API no Postman
+
+https://documenter.getpostman.com/view/8529780/SVfKyBMf

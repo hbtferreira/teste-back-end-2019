@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -46,6 +47,35 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        /**
+         * Trata dos erros de autenticação
+         */
+        if ($exception instanceof UnauthorizedHttpException) {
+            $preException = $exception->getPrevious();
+            if ($preException instanceof
+                \Tymon\JWTAuth\Exceptions\TokenExpiredException
+            ) {
+                return responder()->error(401, 'Token expirado')->respond();
+            } elseif ($preException instanceof
+                \Tymon\JWTAuth\Exceptions\TokenInvalidException
+            ) {
+                return responder()->error(401, 'Token inválido')->respond();
+            } elseif ($preException instanceof
+                \Tymon\JWTAuth\Exceptions\TokenBlacklistedException
+            ) {
+                return responder()->error(401, 'Token na blacklist')->respond();
+            } elseif ($exception->getMessage() === 'Token not provided') {
+                return responder()->error(401, 'Token não fornecido')->respond();
+            }
+        }
+
+        /**
+         * Trata do erro quando uma rota não exixtente é acionada
+         */
+        if ($exception instanceof ModelNotFoundException) {
+            return responder()->error(404, 'Recurso não encontrado')->respond();
+        }
+
         return parent::render($request, $exception);
     }
 }
